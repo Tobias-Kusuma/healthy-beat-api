@@ -13,16 +13,16 @@ response:
     {
         "success": true,
         "data": {
-            "username": "gracevita",
-            "password": "$2a$10$giEuxOeodp3BaUptCeNs8udUPXUn20aiXX4V3jldKsUU1FsMi2Z6C",
-            "fullname": "Grace Vita",
-            "birthday": "24-05-1972",
-            "address": "Pejaten, Pasar Minggu",
-            "city": "Jakarta Selatan",
-            "telpnum": "085891063326",
-            "doctname": "Tristan Rizky",
-            "doctnum": "085891063326",
-            "_id": "653ce15db948f1eec38e41e5",
+            "username": "username",
+            "password": "hashed password",
+            "fullname": "Full Name",
+            "birthday": "dd-mm-yyyy",
+            "address": "address",
+            "city": "city",
+            "telpnum": "phone",
+            "doctname": "doc's name",
+            "doctnum": "doc's phone",
+            "_id": "objectId",
             "history": [],
             "__v": 0
         },
@@ -38,7 +38,7 @@ response:
     {
         "success": true,
         "message": "Login success",
-        "token": "eyJh..."
+        "token": "jsonwebtoken..."
     }
 --------------------------------------------------------
 3. GET, /user/:username => mendapatkan data pengguna
@@ -47,16 +47,16 @@ response:
     {
         "success": true,
         "data": {
-            "_id": "653ce15db948f1eec38e41e5",
-            "username": "gracevita",
-            "password": "$2a$10$giEuxOeodp3BaUptCeNs8udUPXUn20aiXX4V3jldKsUU1FsMi2Z6C",
-            "fullname": "Grace Vita",
-            "birthday": "24-05-1972",
-            "address": "Sumatera",
-            "city": "Jakarta Selatan",
-            "telpnum": "085891063326",
-            "doctname": "Tristan Rizky",
-            "doctnum": "085891063326",
+            "_id": "objectId",
+            "username": "username",
+            "password": "hashed password",
+            "fullname": "Full Name",
+            "birthday": "dd-mm-yyyy",
+            "address": "address",
+            "city": "city",
+            "telpnum": "phone",
+            "doctname": "doc's name",
+            "doctnum": "doc's phone",
             "history": [],
             "__v": 0
         },
@@ -77,14 +77,3 @@ body require:
     doctnum: String
 response: status code 204 (no content)
 --------------------------------------------------------
-5. GET, /history/:username => mendapatkan riwayat pengguna (object array)
-params: username
-response: 
-    {
-        "history":[
-                {
-
-                }
-            ]
-    }
-    
