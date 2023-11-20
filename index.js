@@ -166,7 +166,7 @@ app.get("/api/healthybeat/history/:username", async (req, res) => {
 });
 
 // request listener
-const PORT = 8080;
+const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
