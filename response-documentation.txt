@@ -1,4 +1,4 @@
-1. POST, /user/register => membuat pengguna baru
+1. POST, /api/healthybeat/user/register => membuat pengguna baru
 body require:
     username: String,
     password: String,
@@ -30,7 +30,7 @@ response:
         "code": 201
     }
 --------------------------------------------------------
-2. POST, /user/login => autentikasi pengguna
+2. POST, /api/healthybeat/user/login => autentikasi pengguna
 body require:
     username: String,
     password: String,
@@ -41,7 +41,7 @@ response:
         "token": "jsonwebtoken..."
     }
 --------------------------------------------------------
-3. GET, /user/:username => mendapatkan data pengguna
+3. GET, /api/healthybeat/user/:username => mendapatkan data pengguna
 params: username
 response:
     {
@@ -63,9 +63,9 @@ response:
         "code": 200
     }
 --------------------------------------------------------
-4. PUT, /user/:username => mengupdate data pengguna
+4. PUT, /api/healthybeat/user/:username => mengupdate data pengguna
 params: username
-body require:
+body require (one or more key-value) :
     username: String,
     password: String,
     fullname: String,

@@ -5,7 +5,7 @@ const {
     updateUserByUsername, getHistoryByUsername
 } = require('./middleware/user-model');
 const { connectToDatabase } = require('./middleware/mongo-conn-handler');
-const DB_URI = "mongodb://localhost:27017/test_api_mongoose";
+const DB_URI = "mongodb://localhost:27017/healthybeat";
 const multer = require('multer');
 const { spawn } = require('child_process');
 
@@ -53,22 +53,6 @@ app.post("/api/healthybeat/user/login", async (req, res) => {
         res.status(result.code).json(result);
     }
 });
-
-// example routes that need authentication token
-// app.get("/test_token", async (req, res) => {
-//     const token = req.headers.authorization;
-//     if (!token) {
-//         return res.status(403).json({ message: "Unauthorized" });
-//     }
-//     // Verifikasi token
-//     const decoded = authToken.verifyToken(token);
-//     if (decoded) {
-//         // TODO 
-//         res.status(200);
-//     } else {
-//         res.status(403).json({ message: "Unauthorized, token expired" });
-//     }
-// });
 
 // get user data
 app.get("/api/healthybeat/user/:username", async (req, res) =>{
