@@ -1,7 +1,7 @@
 const express = require('express');
 const authToken = require('./middleware/jwt-auth');
-const { 
-    registerNewUser, authenticateUser, getUserByUsername, 
+const {
+    registerNewUser, authenticateUser, getUserByUsername,
     updateUserByUsername, getHistoryByUsername
 } = require('./middleware/user-model');
 const { connectToDatabase } = require('./middleware/mongo-conn-handler');
@@ -11,11 +11,11 @@ const { spawn } = require('child_process');
 
 const app = express();
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }))
+app.use(express.urlencoded({ extended: true }));
 
 app.get("/api/healthybeat", (req, res) => {
     res.send("Welcome, this is webserver for HealthyBeat API.")
-})
+});
 
 // register route
 app.post("/api/healthybeat/user/register", async (req, res) => {
