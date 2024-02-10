@@ -12,12 +12,14 @@ const regSchema = new Schema({
     city: String,
     telpnum: String,
     doctname: String,
-    doctnum: String,
+    doctmail: String,
     history: [
       {
         date: String,
+        time: String,
         result: String,
-        image: Buffer
+        image: String,
+        pdf: String
       },
     ],
   });
@@ -42,6 +44,16 @@ regSchema.pre('save', async function (next) {
     }
 });
 
+regSchema.methods.addHistory = function (newHistory) {
+  this.history.push(newHistory);
+  return this.save();
+};
+
+regSchema.methods.getHistoryByDateTime = function (date, time) {
+  return this.history.find(entry => entry.date === date && entry.time === time);
+};
+
+
 const User = mongoose.model("users", regSchema);
 
-module.exports = { User }
+module.exports = { User };

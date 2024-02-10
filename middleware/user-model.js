@@ -74,7 +74,7 @@ async function updateUserByUsername(username, userData) {
 }
 // ----------------------------------------------------------------------
 
-// get user history logic
+// get user all history logic
 async function getHistoryByUsername(username) {
     try {
         const user = await User.findOne({ username: username });
@@ -90,28 +90,45 @@ async function getHistoryByUsername(username) {
 }
 // ----------------------------------------------------------------------
 
-// new history entry
-// async function entryHistory(userData) {
-//     try {
-//         const user = await User.findOne({ username: userData.username });
+// new history entry logic
+async function addHistoryByUsername(username, newHistory) {
+    try {
+        const user = await User.findOne({ username: username });
 
-//         if (!user) {
-//             return { success: false, message: 'User not found.', error, code:401 };
-//         };
+        if (!user) {
+            return { success: false, message: 'User not found.', error, code:401 };
+        };
 
-//         const newHistoryEntry = {
-//             date: userData.date,
-//             result: userData.result,
-//             image: userData.image
-//         };
+        await user.addHistory(newHistory);
+        return { success: true, message: "History added successfully", code: 200 };
 
-//         user.history.push(newHistoryEntry);
-//         await user.save();
+    } catch (error) {
+        return { success: false, message: 'Server error', error, code:500};
+    }
+}
+// ----------------------------------------------------------------------
 
-//     } catch (error) {
-//         return { success: false, message: 'Server error', error, code:500};
-//     }
-// }
+// get spesific user history by date logic
+async function getHistoryByDate(username, date, time) {
+    try {
+        const user = await User.findOne({ username: username });
+
+        if (!user) {
+            return { success: false, message: 'User not found.', error, code:401 };
+        };
+
+        const returnedData = await user.getHistoryByDateTime(date, time);
+
+        if ((returnedData===null) || (returnedData.length===0)) {
+            throw error;
+        } else {
+            return { success: true, data: returnedData, code: 200 };
+        }
+        
+    } catch (error) {
+        return { success: false, message: 'Server error, history data not found', error, code:500};
+    }
+}
 // ----------------------------------------------------------------------
 
 module.exports = {
@@ -119,5 +136,7 @@ module.exports = {
     authenticateUser,
     getUserByUsername,
     updateUserByUsername,
-    getHistoryByUsername
+    getHistoryByUsername,
+    addHistoryByUsername,
+    getHistoryByDate
 };
