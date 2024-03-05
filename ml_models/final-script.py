@@ -138,10 +138,10 @@ count_sakit = predictions.count(1)
 # Menentukan kelas yang memiliki frekuensi tertinggi
 hasil_akhir = ""
 if count_sehat > count_sakit:
-    hasil_akhir = "Hasil deteksi dini dinyatakan SEHAT"
+    hasil_akhir = "SEHAT"
 elif count_sakit > count_sehat:
-    hasil_akhir = "Hasil deteksi dini dinyatakan SAKIT"
+    hasil_akhir = "ARITMIA"
 else:
-    hasil_akhir = "Tidak dapat menentukan hasil secara pasti"
+    hasil_akhir = "SEHAT"
 
 print(hasil_akhir)

@@ -6,10 +6,19 @@ const {
     getHistoryByDate
 } = require('./middleware/user-model');
 
+const emailModule = require('./middleware/email-service');
 const { dataProcess } = require('./ml_models/script-handler');
 const { connectToDatabase } = require('./middleware/mongo-conn-handler');
 const DB_URI = "mongodb://localhost:27017/healthybeat";
 const path = require('path');
+const fs = require('fs');
+const crypto = require('crypto');
+const generateToken = () => {
+    const token = crypto.randomBytes(16).toString('hex');
+    const expirationTime = Date.now() + 5 * 60 * 1000; // 5 menit dalam milidetik
+    return { token, expirationTime };
+};
+const oneTimeURLs = new Map();
 
 const app = express();
 app.use(express.json());
@@ -157,9 +166,32 @@ app.post("/api/healthybeat/history/:username", async (req, res) => {
     
     if ((processResult===null) || (processResult===undefined) || (Object.keys(processResult).length===0)) {
         res.status(500).json({ success: false, message: "Internal server error" });
-    } else if (processResult.result === "Hasil deteksi dini dinyatakan SAKIT") {
+    } else if (processResult.result === "SAKIT") {
         console.log("Data sakit");
-        // Another ToDo
+        await connectToDatabase(DB_URI);
+        const result = await addHistoryByUsername(modifiedUsername, processResult);
+        if (result.success) {
+            res.status(result.code).json(result);
+            const data_kirim = await getUserByUsername(modifiedUsername);
+            const nama = data_kirim.data.fullname;
+            const nomor = data_kirim.data.telpnum;
+            const waktu = processResult.date + '/' + processResult.time;
+            const emailContent = emailModule.getEmailContent(nama, nomor, waktu);
+            try {
+                await emailModule.sendEmail({
+                    subject: "Peringatan Hasil Deteksi Jantung",
+                    html: emailContent,
+                    to: data_kirim.data.doctmail,
+                    from: process.env.EMAIL
+                });
+                console.log("Email sent successfully");
+            } catch (error) {
+                console.error("Error sending email:", error);
+            }
+        } else {
+            res.status(result.code).json(result);
+        }
+        console.log("berhasil");
     } else {
         await connectToDatabase(DB_URI);
         const result = await addHistoryByUsername(modifiedUsername, processResult);
@@ -203,6 +235,39 @@ app.get("/api/healthybeat/download/:filename", async(req, res) =>{
         res.status(400).json({ success: false, message: "File is not found or not exists" })
     } else {
         res.sendFile(filePaths);
+    }
+});
+
+app.get('/share', (req, res) => {
+    const { token, expirationTime } = generateToken();
+    const oneTimeURL = `http://www.saibotsworks.my.id/shared/${token}/:filename`;
+    oneTimeURLs.set(token, expirationTime);
+  
+    res.send(oneTimeURL);
+});
+
+app.get("/api/healthybeat/shared/:token/:filename", async(req, res) => {
+    const { token, filename } = req.params;
+    if (oneTimeURLs.has(token)) {
+        const currentTime = Date.now();
+        const expirationTime = oneTimeURLs.get(token);
+        if (currentTime <= expirationTime) {
+            const filePath = path.join(__dirname, '/reports/', filename);
+            const fileStream = fs.createReadStream(filePath);
+            fileStream.pipe(res);
+            fileStream.on('end', () => {
+                // Hapus token setelah file dikirim
+                oneTimeURLs.delete(token);
+            });
+            fileStream.on('error', (err) => {
+                console.log(err);
+                res.status(500).send('Gagal mengirim file.');
+            });
+        } else {
+            res.status(403).send('URL sudah kadaluarsa.');
+        }
+    } else {
+        res.status(404).send('URL tidak valid atau sudah digunakan.');
     }
 });
 
