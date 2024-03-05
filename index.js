@@ -166,16 +166,37 @@ app.post("/api/healthybeat/history/:username", async (req, res) => {
     
     if ((processResult===null) || (processResult===undefined) || (Object.keys(processResult).length===0)) {
         res.status(500).json({ success: false, message: "Internal server error" });
-    } else if (processResult.result === "SAKIT") {
+
+    } else if (processResult.result === "Hasil deteksi dini dinyatakan SAKIT") {
         console.log("Data sakit");
         await connectToDatabase(DB_URI);
         const result = await addHistoryByUsername(modifiedUsername, processResult);
+        const data_kirim = await getUserByUsername(modifiedUsername);
+
+        const browser = await puppeteer.launch({ headless: true });
+        const page = await browser.newPage();
+        const htmlBody = fs.readFileSync('pdf_template.html', 'utf-8');
+        const fullname_pdf = data_kirim.data.fullname;
+        const telpnum_pdf = data_kirim.data.telpnum;
+        const date_pdf = `${processResult.date}/${processResult.time}`;
+        const data_pdf = {
+            fullname: `${fullname_pdf}`,
+            telpmnum:`${telpnum_pdf}`,
+            date: `${date_pdf}`
+        };
+        await page.setContent(mustache.render(htmlBody, data_pdf));
+        const pdf = await page.pdf({ format: 'A4' });
+        const fileName = `${data_pdf.fullname}_${processResult.date}_${processResult.time}.pdf`;
+        const filePath = path.join(__dirname, '/reports/', fileName);
+        fs.writeFileSync(filePath, pdf);
+        page.close();
+        browser.close();
+
         if (result.success) {
-            res.status(result.code).json(result);
-            const data_kirim = await getUserByUsername(modifiedUsername);
             const nama = data_kirim.data.fullname;
             const nomor = data_kirim.data.telpnum;
             const waktu = processResult.date + '/' + processResult.time;
+
             const emailContent = emailModule.getEmailContent(nama, nomor, waktu);
             try {
                 await emailModule.sendEmail({
@@ -185,6 +206,7 @@ app.post("/api/healthybeat/history/:username", async (req, res) => {
                     from: process.env.EMAIL
                 });
                 console.log("Email sent successfully");
+                res.status(result.code).json(result);
             } catch (error) {
                 console.error("Error sending email:", error);
             }
@@ -195,7 +217,28 @@ app.post("/api/healthybeat/history/:username", async (req, res) => {
     } else {
         await connectToDatabase(DB_URI);
         const result = await addHistoryByUsername(modifiedUsername, processResult);
-    
+        const data_kirim = await getUserByUsername(modifiedUsername);
+
+        const browser = await puppeteer.launch({ headless: true });
+        const page = await browser.newPage();
+        const htmlBody = fs.readFileSync('pdf_template.html', 'utf-8');
+
+        const fullname_pdf = data_kirim.data.fullname;
+        const telpnum_pdf = data_kirim.data.telpnum;
+        const date_pdf = `${processResult.date}/${processResult.time}`;
+        const data_pdf = {
+            fullname: `${fullname_pdf}`,
+            telpmnum:`${telpnum_pdf}`,
+            date: `${date_pdf}`
+        };
+        await page.setContent(mustache.render(htmlBody, data_pdf));
+        const pdf = await page.pdf({ format: 'A4' });
+        const fileName = `${data_pdf.fullname}_${processResult.date}_${processResult.time}.pdf`;
+        const filePath = path.join(__dirname, '/reports/', fileName);
+        fs.writeFileSync(filePath, pdf);
+        page.close();
+        browser.close();
+
         if (result.success) {
             res.status(result.code).json(result);
         } else {
