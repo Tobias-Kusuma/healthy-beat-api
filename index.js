@@ -11,6 +11,8 @@ const { dataProcess } = require('./ml_models/script-handler');
 const { connectToDatabase } = require('./middleware/mongo-conn-handler');
 const DB_URI = "mongodb://localhost:27017/healthybeat";
 const path = require('path');
+const puppeteer = require('puppeteer');
+const mustache = require('mustache');
 const fs = require('fs');
 const crypto = require('crypto');
 const generateToken = () => {
