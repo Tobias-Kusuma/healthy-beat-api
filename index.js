@@ -170,7 +170,7 @@ app.post("/api/healthybeat/history/:username", async (req, res) => {
     if ((processResult===null) || (processResult===undefined) || (Object.keys(processResult).length===0)) {
         res.status(500).json({ success: false, message: "Internal server error" });
 
-    } else if (processResult.result === "Hasil deteksi dini dinyatakan SAKIT") {
+    } else if (processResult.result === "ARITMIA") {
         console.log("Data sakit");
         await connectToDatabase(DB_URI);
         const result = await addHistoryByUsername(modifiedUsername, processResult);
@@ -182,14 +182,16 @@ app.post("/api/healthybeat/history/:username", async (req, res) => {
         const fullname_pdf = data_kirim.data.fullname;
         const telpnum_pdf = data_kirim.data.telpnum;
         const date_pdf = `${processResult.date}/${processResult.time}`;
+        const result_pdf = `${processResult.result}`;
         const data_pdf = {
             fullname: `${fullname_pdf}`,
             telpmnum:`${telpnum_pdf}`,
-            date: `${date_pdf}`
+            date: `${date_pdf}`,
+            result: `${result_pdf}`
         };
         await page.setContent(mustache.render(htmlBody, data_pdf));
         const pdf = await page.pdf({ format: 'A4' });
-        const fileName = `${data_pdf.fullname}_${processResult.date}_${processResult.time}.pdf`;
+        const fileName = `${modifiedUsername}_${processResult.date}_${processResult.time}.pdf`;
         const filePath = path.join(__dirname, '/reports/', fileName);
         fs.writeFileSync(filePath, pdf);
         page.close();
@@ -229,14 +231,16 @@ app.post("/api/healthybeat/history/:username", async (req, res) => {
         const fullname_pdf = data_kirim.data.fullname;
         const telpnum_pdf = data_kirim.data.telpnum;
         const date_pdf = `${processResult.date}/${processResult.time}`;
+        const result_pdf = `${processResult.result}`;
         const data_pdf = {
             fullname: `${fullname_pdf}`,
             telpmnum:`${telpnum_pdf}`,
-            date: `${date_pdf}`
+            date: `${date_pdf}`,
+            result: `${result_pdf}`
         };
         await page.setContent(mustache.render(htmlBody, data_pdf));
         const pdf = await page.pdf({ format: 'A4' });
-        const fileName = `${data_pdf.fullname}_${processResult.date}_${processResult.time}.pdf`;
+        const fileName = `${modifiedUsername}_${processResult.date}_${processResult.time}.pdf`;
         const filePath = path.join(__dirname, '/reports/', fileName);
         fs.writeFileSync(filePath, pdf);
         page.close();
