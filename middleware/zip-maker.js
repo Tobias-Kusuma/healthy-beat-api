@@ -30,6 +30,3 @@ function makeZip(outputFolder, fileFormat) {
 module.exports = {
     makeZip
 };
-
-// Contoh penggunaan
-// makeZip('uploads', 'tobias_12-12', 'tobias_12-12_2012_08-12');

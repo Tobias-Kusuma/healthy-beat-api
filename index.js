@@ -346,30 +346,6 @@ app.get("/api/healthybeat/shared/:token/:filename", async (req, res) => {
     }
 });
 
-// Tentukan folder penyimpanan untuk file yang diunggah
-const multer = require('multer');
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'reports/');
-    },
-    filename: function (req, file, cb) {
-        // Pertahankan nama file asli
-        cb(null, file.originalname);
-    }
-});
-
-// Inisialisasi multer dengan konfigurasi penyimpanan
-const upload = multer({ storage: storage });
-
-// Tampilkan formulir HTML
-app.get('/upload-form', (req, res) => {
-    res.sendFile(__dirname + '/upload.html');
-});
-
-// Tangani permintaan pengunggahan file
-app.post('/upload', upload.single('file'), (req, res) => {
-    res.send('File berhasil diunggah!');
-});
 
 // request listener
 const PORT = 3000;
