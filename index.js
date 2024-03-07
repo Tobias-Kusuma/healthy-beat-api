@@ -9,6 +9,7 @@ const {
 const emailModule = require('./middleware/email-service');
 const { dataProcess } = require('./ml_models/script-handler');
 const { connectToDatabase } = require('./middleware/mongo-conn-handler');
+const { makeZip } = require('./middleware/zip-maker');
 const DB_URI = "mongodb://localhost:27017/healthybeat";
 const path = require('path');
 const puppeteer = require('puppeteer');
@@ -291,23 +292,48 @@ app.get('/share', (req, res) => {
     res.send(oneTimeURL);
 });
 
-app.get("/api/healthybeat/shared/:token/:filename", async(req, res) => {
+app.get("/api/healthybeat/shared/:token/:filename", async (req, res) => {
     const { token, filename } = req.params;
+
     if (oneTimeURLs.has(token)) {
         const currentTime = Date.now();
         const expirationTime = oneTimeURLs.get(token);
+
         if (currentTime <= expirationTime) {
-            const filePath = path.join(__dirname, '/reports/', filename);
-            const fileStream = fs.createReadStream(filePath);
-            fileStream.pipe(res);
-            fileStream.on('end', () => {
-                // Hapus token setelah file dikirim
-                oneTimeURLs.delete(token);
-            });
-            fileStream.on('error', (err) => {
-                console.log(err);
-                res.status(500).send('Gagal mengirim file.');
-            });
+            const filePath = path.join(__dirname, '/reports/');
+
+            // Cek apakah yang diminta adalah direktori
+            if (fs.statSync(filePath).isDirectory()) {
+                const zipFileName = filename;
+                const zipFilePath = makeZip(filePath, zipFileName);
+
+                res.download(zipFilePath, zipFileName + '.zip', (err) => {
+                    if (err) {
+                        console.error(err);
+                        res.status(500).send('Gagal mengirim file ZIP.');
+                    }
+
+                    // Hapus token setelah file ZIP dikirim
+                    oneTimeURLs.delete(token);
+
+                    // Hapus file ZIP setelah dikirim
+                    fs.unlinkSync(zipFilePath);
+                });
+            } else {
+                // Kirim file tunggal jika bukan direktori
+                const fileStream = fs.createReadStream(filePath);
+                fileStream.pipe(res);
+
+                fileStream.on('end', () => {
+                    // Hapus token setelah file tunggal dikirim
+                    oneTimeURLs.delete(token);
+                });
+
+                fileStream.on('error', (err) => {
+                    console.log(err);
+                    res.status(500).send('Gagal mengirim file tunggal.');
+                });
+            }
         } else {
             res.status(403).send('URL sudah kadaluarsa.');
         }
