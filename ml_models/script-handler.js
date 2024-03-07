@@ -50,8 +50,8 @@ async function dataProcess(username, rawData) {
                         "date": tanggal,
                         "time": waktu,
                         "result": dataFromPythonProcess.replace(/\r?\n|\r/g, '').trim(), 
-                        "image": `http://www.saibotsworks.my.id/api/healthybeat/reports/${username}.jpeg`,
-                        "pdf": `http://www.saibotsworks.my.id/api/healthybeat/reports/${username}.pdf`
+                        "image": `http://www.saibotsworks.my.id/api/healthybeat/download/${username}.jpeg`,
+                        "pdf": `http://www.saibotsworks.my.id/api/healthybeat/download/${username}.pdf`
                     });
                     console.log(dataFromPythonProcess);
                 } else {
